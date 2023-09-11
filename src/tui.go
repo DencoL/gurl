@@ -1,25 +1,18 @@
 package main
 
 import (
+	"gurl/content"
 	"gurl/requests"
-	"log"
-	"os"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 func NewTui(requests []requests.Request, requestsFolderPath string) Model {
-    if (!strings.HasSuffix(requestsFolderPath, "/")) {
-        requestsFolderPath = requestsFolderPath + "/"
-    }
-
     return Model {
-        requestsFolderPath: requestsFolderPath,
         requests: requests,
+        requestContent: content.NewContentModel(requestsFolderPath),
     }
 }
 
@@ -27,7 +20,11 @@ type Model struct {
     requestsFolderPath string
     requests []requests.Request
     requestsList list.Model
-    requestContent viewport.Model
+    requestContent content.Model
+}
+
+func (self *Model) SelectedRequest() requests.Request {
+    return self.requests[self.requestsList.Cursor()]
 }
 
 func (self *Model) initRequests(width int, height int) {
@@ -52,29 +49,17 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     case tea.WindowSizeMsg:
         self.initRequests(msg.Width, msg.Height)
 
-        self.requestContent.Width = msg.Width
-        self.requestContent.Height = msg.Height
+        self.requestContent.SetDimensions(msg.Width, msg.Height)
     }
 
     var listCmd tea.Cmd
     self.requestsList, listCmd = self.requestsList.Update(msg)
 
-    self.requestContent.SetContent(self.readSelectedRequestContent())
-    var contentCmd tea.Cmd
-    self.requestContent, contentCmd = self.requestContent.Update(msg)
+    self.requestContent.SetContent(self.SelectedRequest().Name)
+    newContent, cmd := self.requestContent.Update(msg)
+    self.requestContent = newContent
 
-    return self, tea.Batch(listCmd, contentCmd)
-}
-
-func (self *Model) readSelectedRequestContent() string {
-    selectedRequestName := self.requestsFolderPath + self.requests[self.requestsList.Cursor()].Name + ".hurl"
-    bytes, err := os.ReadFile(selectedRequestName)
-
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    return string(bytes)
+    return self, tea.Batch(listCmd, cmd)
 }
 
 func (self Model) View() string {
