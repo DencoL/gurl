@@ -1,10 +1,13 @@
 package requests
 
 import (
+	"bufio"
 	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
+	"golang.org/x/exp/slices"
 )
 
 type RequestInfo struct {
@@ -33,15 +36,18 @@ func ReadRequestsInfo(folderPath string) []RequestInfo {
     }
 
     var result []RequestInfo
-    filepath.WalkDir(folderPath, func(_ string, dirEntry fs.DirEntry, err error) error {
+    filepath.WalkDir(folderPath, func(fullFilePath string, dirEntry fs.DirEntry, err error) error {
         if err != nil {
             return err
         }
 
         if filepath.Ext(dirEntry.Name()) == ".hurl" {
+            firstLine := readFirstLine(fullFilePath)
+            httpMethod := parseHttpMethod(firstLine)
+            
             result = append(result, RequestInfo{
                 name: dirEntry.Name(),
-                method: "",
+                method: httpMethod,
             })
         }
 
@@ -49,4 +55,43 @@ func ReadRequestsInfo(folderPath string) []RequestInfo {
     })
 
     return result
+}
+
+func readFirstLine(fullFilePath string) string {
+    readFile, err := os.Open(fullFilePath)
+
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fileScanner := bufio.NewScanner(readFile)
+    fileScanner.Split(bufio.ScanLines)
+    var firstLine string
+
+    for fileScanner.Scan() {
+        firstLine = fileScanner.Text()
+        break
+    }
+
+    readFile.Close()
+
+    if err := fileScanner.Err(); err != nil {
+        log.Fatal(err)
+    }
+
+    return firstLine
+}
+
+func parseHttpMethod(value string) string {
+    supportedHttpMethods := []string {
+        "GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH",
+    }
+
+    httpMethod := strings.Split(value, " ")[0]
+
+    if slices.Contains(supportedHttpMethods, httpMethod) {
+        return httpMethod
+    }
+
+    return ""
 }
