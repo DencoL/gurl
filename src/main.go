@@ -12,6 +12,6 @@ func main() {
 
     // Call to TUI will be here later
     for _, r := range requests {
-        fmt.Println(r.GetName())
+        fmt.Println(r.Name)
     }
 }
