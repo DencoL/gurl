@@ -33,7 +33,7 @@ func ReadRequestsInfo(folderPath string) []Request {
             httpMethod := parseHttpMethod(firstLine)
             
             result = append(result, Request{
-                Name: dirEntry.Name(),
+                Name: strings.Split(dirEntry.Name(), ".")[0],
                 Method: httpMethod,
             })
         }

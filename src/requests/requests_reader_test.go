@@ -17,8 +17,9 @@ func TestReadRequestsInfo_NonEmptyFolder_ReturnsHurlFiles(t *testing.T) {
     result := ReadRequestsInfo(testPath)
 
     verify.Slice[Request](result).Should(func(got []Request) bool { return len(got) == 3 }).Assert(t)
-    verify.String(result[0].Name).Equal("test_1.hurl").Assert(t)
-    verify.String(result[1].Name).Equal("test_2.hurl").Assert(t)
+    verify.String(result[0].Name).Equal("test_1").Assert(t)
+    verify.String(result[1].Name).Equal("test_2").Assert(t)
+    verify.String(result[2].Name).Equal("test_4_no_method").Assert(t)
 }
 
 func TestReadRequestsInfo_HttpMethodIsReadFromFile(t *testing.T) {
