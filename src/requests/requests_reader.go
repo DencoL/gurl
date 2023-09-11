@@ -1,7 +1,6 @@
 package requests
 
 import (
-	"bufio"
 	"io/fs"
 	"log"
 	"os"
@@ -9,6 +8,18 @@ import (
 	"strings"
 	"golang.org/x/exp/slices"
 )
+
+var supportedHttpMethods = []string {
+    "GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH",
+}
+
+var readSize = len(findLongestSupportedHttpMethod())
+
+func findLongestSupportedHttpMethod() string {
+    return slices.MaxFunc[[]string, string](supportedHttpMethods, func(a string, b string) int { 
+        return len(a) - len(b)
+    })
+}
 
 // Currently reads only from the first level, subfolders will be added later
 func ReadRequestsInfo(folderPath string) []Request {
@@ -45,35 +56,23 @@ func ReadRequestsInfo(folderPath string) []Request {
 }
 
 func readFirstLine(fullFilePath string) string {
-    readFile, err := os.Open(fullFilePath)
+    file, err := os.Open(fullFilePath)
+    if err != nil {
+        log.Fatal("Error opening file!!!")
+    }
 
+    defer file.Close()
+    bytes := make([]byte, readSize)
+
+    actuallyReadSize, err := file.Read(bytes)
     if err != nil {
         log.Fatal(err)
     }
 
-    fileScanner := bufio.NewScanner(readFile)
-    fileScanner.Split(bufio.ScanLines)
-    var firstLine string
-
-    for fileScanner.Scan() {
-        firstLine = fileScanner.Text()
-        break
-    }
-
-    readFile.Close()
-
-    if err := fileScanner.Err(); err != nil {
-        log.Fatal(err)
-    }
-
-    return firstLine
+    return string(bytes[:actuallyReadSize])
 }
 
 func parseHttpMethod(value string) string {
-    supportedHttpMethods := []string {
-        "GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH",
-    }
-
     httpMethod := strings.Split(value, " ")[0]
 
     if slices.Contains(supportedHttpMethods, httpMethod) {
