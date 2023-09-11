@@ -9,9 +9,10 @@ import (
 
 func main() {
     homeFolder := os.Getenv("HOME")
-    requests := requests.ReadRequestsInfo(homeFolder + "/hurl-requests")
+    requestsFolderPath := homeFolder + "/hurl-requests"
+    requests := requests.ReadRequestsInfo(requestsFolderPath)
 
-    program := tea.NewProgram(NewTui(requests))
+    program := tea.NewProgram(NewTui(requests, requestsFolderPath))
 
     if _, err := program.Run(); err != nil {
         fmt.Println(err)
