@@ -3,7 +3,6 @@ package content
 import (
 	"log"
 	"os"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -11,19 +10,10 @@ import (
 
 type Model struct {
     content viewport.Model
-    requestsFolderPath string
 }
 
 func NewContentModel(requestsFolderPath string) Model {
-    if (!strings.HasSuffix(requestsFolderPath, "/")) {
-        requestsFolderPath = requestsFolderPath + "/"
-    }
-
-    model := Model {
-        requestsFolderPath: requestsFolderPath,
-    }
-
-    return model
+    return Model{}
 }
 
 func (self Model) Init() tea.Cmd {
@@ -46,12 +36,11 @@ func (self *Model) SetDimensions(width int, height int) {
     self.content.Height = height
 }
 
-func (self *Model) SetContent(requestName string) {
-    path := self.requestsFolderPath + requestName + ".hurl"
-    self.content.SetContent(self.readSelectedRequestContent(path))
+func (self *Model) SetContent(requestFullPath string) {
+    self.content.SetContent(self.readRequestContent(requestFullPath))
 }
 
-func (self *Model) readSelectedRequestContent(fullFilePath string) string {
+func (self *Model) readRequestContent(fullFilePath string) string {
     bytes, err := os.ReadFile(fullFilePath)
 
     if err != nil {

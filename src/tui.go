@@ -3,6 +3,7 @@ package main
 import (
 	"gurl/content"
 	"gurl/requests"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -10,7 +11,12 @@ import (
 )
 
 func NewTui(requests []requests.Request, requestsFolderPath string) Model {
+    if (!strings.HasSuffix(requestsFolderPath, "/")) {
+        requestsFolderPath = requestsFolderPath + "/"
+    }
+
     model := Model {
+        requestsFolderPath: requestsFolderPath,
         requestContent: content.NewContentModel(requestsFolderPath),
     }
 
@@ -32,8 +38,10 @@ type Model struct {
     requestContent content.Model
 }
 
-func (self *Model) SelectedRequest() requests.Request {
-    return self.requestsList.SelectedItem().(requests.Request)
+func (self *Model) SelectedRequestFullPath() string {
+    selectedRequest := self.requestsList.SelectedItem().(requests.Request)
+
+    return self.requestsFolderPath + selectedRequest.Name + ".hurl"
 }
 
 func (self *Model) setListDimensions(width int, height int) {
@@ -55,7 +63,7 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     var listCmd tea.Cmd
     self.requestsList, listCmd = self.requestsList.Update(msg)
 
-    self.requestContent.SetContent(self.SelectedRequest().Name)
+    self.requestContent.SetContent(self.SelectedRequestFullPath())
 
     return self, listCmd
 }
