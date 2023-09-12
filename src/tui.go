@@ -10,34 +10,35 @@ import (
 )
 
 func NewTui(requests []requests.Request, requestsFolderPath string) Model {
-    return Model {
-        requests: requests,
+    model := Model {
         requestContent: content.NewContentModel(requestsFolderPath),
     }
+
+    model.requestsList = list.New(make([]list.Item, len(requests)), list.NewDefaultDelegate(), 0, 0)
+    model.requestsList.Title = "Requests"
+    model.requestsList.SetFilteringEnabled(false)
+    model.requestsList.SetShowStatusBar(false)
+
+    for index, request := range requests {
+        model.requestsList.SetItem(index, request)
+    }
+
+    return model
 }
 
 type Model struct {
     requestsFolderPath string
-    requests []requests.Request
     requestsList list.Model
     requestContent content.Model
 }
 
 func (self *Model) SelectedRequest() requests.Request {
-    return self.requests[self.requestsList.Cursor()]
+    return self.requestsList.SelectedItem().(requests.Request)
 }
 
-func (self *Model) initRequests(width int, height int) {
-    self.requestsList = list.New([]list.Item{}, list.NewDefaultDelegate(), width, height)
-
-    self.requestsList.SetFilteringEnabled(false)
-    self.requestsList.SetShowStatusBar(false)
-    self.requestsList.Title = "Requests"
-
-    self.requestsList.SetItems(make([]list.Item, len(self.requests)))
-    for index, request := range self.requests {
-        self.requestsList.SetItem(index, request)
-    }
+func (self *Model) setListDimensions(width int, height int) {
+    self.requestsList.SetWidth(width)
+    self.requestsList.SetHeight(height)
 }
 
 func (self Model) Init() tea.Cmd {
@@ -47,8 +48,7 @@ func (self Model) Init() tea.Cmd {
 func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     switch msg := msg.(type) {
     case tea.WindowSizeMsg:
-        self.initRequests(msg.Width, msg.Height)
-
+        self.setListDimensions(msg.Width, msg.Height)
         self.requestContent.SetDimensions(msg.Width, msg.Height)
     }
 

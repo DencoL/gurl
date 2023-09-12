@@ -43,7 +43,7 @@ func (self Model) View() string {
 
 func (self *Model) SetDimensions(width int, height int) {
     self.content.Width = width
-    self.content.Height = height / 2
+    self.content.Height = height
 }
 
 func (self *Model) SetContent(requestName string) {
