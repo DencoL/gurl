@@ -56,10 +56,8 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     self.requestsList, listCmd = self.requestsList.Update(msg)
 
     self.requestContent.SetContent(self.SelectedRequest().Name)
-    newContent, cmd := self.requestContent.Update(msg)
-    self.requestContent = newContent
 
-    return self, tea.Batch(listCmd, cmd)
+    return self, listCmd
 }
 
 func (self Model) View() string {

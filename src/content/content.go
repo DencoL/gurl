@@ -14,8 +14,6 @@ type Model struct {
     requestsFolderPath string
 }
 
-type ContentRead string
-
 func NewContentModel(requestsFolderPath string) Model {
     if (!strings.HasSuffix(requestsFolderPath, "/")) {
         requestsFolderPath = requestsFolderPath + "/"
@@ -33,12 +31,6 @@ func (self Model) Init() tea.Cmd {
 }
 
 func (self Model) Update(msg tea.Msg) (Model, tea.Cmd) {
-    switch msg := msg.(type) {
-    case ContentRead:
-        os.Exit(200)
-        self.content.SetContent(string(msg))
-    }
-
     newContentModel, cmd := self.content.Update(msg)
     self.content = newContentModel
 
