@@ -1,11 +1,12 @@
 package main
 
 import (
-	"gurl/content"
 	"gurl/requests"
+	"gurl/response"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -36,9 +37,10 @@ type Model struct {
     requestsFolderPath string
     requestsList list.Model
     requestContent content.Model
+    response viewport.Model
 }
 
-func (self *Model) SelectedRequestFullPath() string {
+func (self *Model) selectedRequestFullPath() string {
     selectedRequest := self.requestsList.SelectedItem().(requests.Request)
 
     return self.requestsFolderPath + selectedRequest.Name + ".hurl"
@@ -58,14 +60,27 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     case tea.WindowSizeMsg:
         self.setListDimensions(msg.Width, msg.Height)
         self.requestContent.SetDimensions(msg.Width, msg.Height)
+        self.response.Width = msg.Width
+        self.response.Height = msg.Height
+    case tea.KeyMsg:
+        switch msg.Type {
+        case tea.KeyEnter:
+            return self, self.runHurlCommand
+        }
+    case response.HurlCommandDone:
+        self.response.SetContent(string(msg))
     }
 
     var listCmd tea.Cmd
     self.requestsList, listCmd = self.requestsList.Update(msg)
 
-    self.requestContent.SetContent(self.SelectedRequestFullPath())
+    self.requestContent.SetContent(self.selectedRequestFullPath())
 
     return self, listCmd
+}
+
+func (self *Model) runHurlCommand() tea.Msg {
+    return response.HurlCommandDone(RunHurl(self.selectedRequestFullPath()))
 }
 
 func (self Model) View() string {
@@ -73,5 +88,6 @@ func (self Model) View() string {
         lipgloss.Left,
         self.requestsList.View(),
         self.requestContent.View(),
+        self.response.View(),
     )
 }
