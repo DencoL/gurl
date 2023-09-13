@@ -89,10 +89,18 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (self Model) View() string {
     return lipgloss.JoinHorizontal(
         lipgloss.Left,
-        self.requestsList.View(),
-        self.requestContent.View(),
-        self.response.View(),
+        self.style(50, self.requestsList.View()),
+        self.style(100, self.requestContent.View()),
+        self.style(100, self.response.View()),
     )
+}
+
+func (self *Model) style(width int, view string) string {
+    return lipgloss.NewStyle().
+        BorderStyle(lipgloss.NormalBorder()).
+        BorderRight(true).
+        Width(width).
+        Render(view)
 }
 
 type HurlCommandDone string
