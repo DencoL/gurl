@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"gurl/requests"
 	"os"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -10,9 +9,8 @@ import (
 func main() {
     homeFolder := os.Getenv("HOME")
     requestsFolderPath := homeFolder + "/hurl-requests"
-    requests := requests.ReadRequestsInfo(requestsFolderPath)
 
-    program := tea.NewProgram(NewTui(requests, requestsFolderPath))
+    program := tea.NewProgram(NewTui(requestsFolderPath))
 
     if _, err := program.Run(); err != nil {
         fmt.Println(err)
