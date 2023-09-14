@@ -1,6 +1,7 @@
 package main
 
 import (
+	requestcontent "gurl/request_content"
 	"gurl/requests"
 	"strings"
 
@@ -25,7 +26,7 @@ func NewTui(requestsFolderPath string) Model {
 type Model struct {
     requestsFolderPath string
     requestsList requests.Model
-    requestContent viewport.Model
+    requestContent requestcontent.Model
     response viewport.Model
 }
 
@@ -39,14 +40,8 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     switch msg := msg.(type) {
 
     case tea.WindowSizeMsg:
-        self.requestContent.Width = msg.Width
-        self.requestContent.Height = msg.Height
-
         self.response.Width = msg.Width
         self.response.Height = msg.Height
-
-    case requests.RequestRead:
-        self.requestContent.SetContent(string(msg))
 
     case requests.RequestExecuted:
         res := string(msg) 
@@ -58,6 +53,12 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     res, cmd := self.requestsList.Update(msg)
     self.requestsList = res.(requests.Model)
+
+    cmds = append(cmds, cmd)
+
+    res, cmd = self.requestContent.Update(msg)
+    self.requestContent = res.(requestcontent.Model)
+
     cmds = append(cmds, cmd)
 
     return self, tea.Batch(cmds...)
