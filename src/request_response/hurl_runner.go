@@ -4,7 +4,7 @@ import (
 	"os/exec"
 )
 
-func RunHurl(hurlFilePath string) string {
+func runHurl(hurlFilePath string) string {
     hurl := exec.Command("hurl", hurlFilePath)
     stdout, err := hurl.Output()
 

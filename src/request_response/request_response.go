@@ -58,6 +58,6 @@ func (self Model) View() string {
 type RequestExecuted string
 func (self *Model) executeRequest(requestFilePath string) tea.Cmd {
     return func() tea.Msg {
-        return RequestExecuted(RunHurl(requestFilePath))
+        return RequestExecuted(runHurl(requestFilePath))
     }
 }

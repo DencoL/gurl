@@ -2,7 +2,6 @@ package requestcontent
 
 import (
 	"gurl/requests"
-	"os"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -52,12 +51,6 @@ func (self Model) View() string {
 type RequestRead string
 func (self *Model) readRequestContent(requestFilePath string) tea.Cmd {
     return func() tea.Msg {
-        bytes, err := os.ReadFile(requestFilePath)
-
-        if err != nil {
-            return RequestRead(err.Error())
-        }
-
-        return RequestRead(bytes)
+        return RequestRead(readRequestContent(requestFilePath))
     }
 }
