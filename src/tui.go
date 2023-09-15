@@ -37,21 +37,20 @@ func (self Model) Init() tea.Cmd {
 }
 
 func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-    var cmds []tea.Cmd
-
-    res, cmd := self.requestsList.Update(msg)
-    self.requestsList = res.(requests.Model)
-    cmds = append(cmds, cmd)
-
-    res, cmd = self.requestContent.Update(msg)
-    self.requestContent = res.(requestcontent.Model)
-    cmds = append(cmds, cmd)
-
-    res, cmd = self.requestResponse.Update(msg)
-    self.requestResponse = res.(requestresponse.Model)
-    cmds = append(cmds, cmd)
+    cmds := []tea.Cmd {
+        updateSubComponent[requests.Model](&self.requestsList, msg),
+        updateSubComponent[requestcontent.Model](&self.requestContent, msg),
+        updateSubComponent[requestresponse.Model](&self.requestResponse, msg),
+    }
 
     return self, tea.Batch(cmds...)
+}
+
+func updateSubComponent[TModel tea.Model](model *TModel, msg tea.Msg) tea.Cmd {
+    res, cmd := (*model).Update(msg)
+    *model = res.(TModel)
+
+    return cmd
 }
 
 func (self Model) View() string {
