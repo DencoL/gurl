@@ -2,7 +2,6 @@ package requestresponse
 
 import (
 	"gurl/requests"
-	"os/exec"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -59,13 +58,6 @@ func (self Model) View() string {
 type RequestExecuted string
 func (self *Model) executeRequest(requestFilePath string) tea.Cmd {
     return func() tea.Msg {
-        hurl := exec.Command("hurl", requestFilePath)
-        stdout, err := hurl.Output()
-
-        if err != nil {
-            return RequestExecuted(err.Error())
-        }
-
-        return RequestExecuted(stdout)
+        return RequestExecuted(RunHurl(requestFilePath))
     }
 }
