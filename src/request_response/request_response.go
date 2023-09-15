@@ -1,12 +1,13 @@
-package requestcontent
+package requestresponse
 
 import (
 	"gurl/requests"
-	"os"
+	"os/exec"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 )
+
 
 type Model struct {
     content viewport.Model
@@ -32,12 +33,18 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         self.content.Width = msg.Width
         self.content.Height = msg.Height
 
-    case requests.RequestChanged:
-        return self, self.readRequestContent(string(msg))
+    case requests.ExecuteRequest:
+        cmds = append(cmds, self.executeRequest(string(msg)))
 
-    case RequestRead:
-        self.content.SetContent(string(msg))
+    case RequestExecuted:
+        res := string(msg) 
+        if res == "" {
+            res = "<EMPTY RESPONSE>"
+        }
+
+        self.content.SetContent(res)
     }
+
 
     self.content, cmd = self.content.Update(msg)
     cmds = append(cmds, cmd)
@@ -49,15 +56,16 @@ func (self Model) View() string {
     return self.content.View()
 }
 
-type RequestRead string
-func (self *Model) readRequestContent(requestFilePath string) tea.Cmd {
+type RequestExecuted string
+func (self *Model) executeRequest(requestFilePath string) tea.Cmd {
     return func() tea.Msg {
-        bytes, err := os.ReadFile(requestFilePath)
+        hurl := exec.Command("hurl", requestFilePath)
+        stdout, err := hurl.Output()
 
         if err != nil {
-            return RequestRead(err.Error())
+            return RequestExecuted(err.Error())
         }
 
-        return RequestRead(bytes)
+        return RequestExecuted(stdout)
     }
 }

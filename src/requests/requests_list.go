@@ -1,8 +1,6 @@
 package requests
 
 import (
-	"os/exec"
-
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -13,7 +11,7 @@ type Model struct {
     requestsFolderPath string
 }
 
-func NewRequestsList(requestsFolderPath string) Model {
+func New(requestsFolderPath string) Model {
     model := Model {
         items: list.New(make([]list.Item, 0), list.NewDefaultDelegate(), 0, 0),
         requestsFolderPath: requestsFolderPath,
@@ -48,7 +46,7 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     case tea.KeyMsg:
         if msg.String() == "enter" {
-            return self, self.executeRequest
+            cmds = append(cmds, self.executeRequest)
         }
 
         switch {
@@ -92,14 +90,7 @@ func (self *Model) changeRequest() tea.Msg {
     return RequestChanged(self.selectedRequestFullPath())
 }
 
-type RequestExecuted string
+type ExecuteRequest string
 func (self *Model) executeRequest() tea.Msg {
-    hurl := exec.Command("hurl", self.selectedRequestFullPath())
-    stdout, err := hurl.Output()
-
-    if err != nil {
-        return RequestExecuted(err.Error())
-    }
-
-    return RequestExecuted(stdout)
+    return ExecuteRequest(self.selectedRequestFullPath())
 }
