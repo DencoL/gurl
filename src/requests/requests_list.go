@@ -25,6 +25,10 @@ func New(requestsFolderPath string) Model {
 }
 
 func (self *Model) selectedRequestFullPath() string {
+    if len(self.items.Items()) == 0 {
+        return ""
+    }
+
     selectedRequest := self.items.SelectedItem().(Request)
 
     return self.requestsFolderPath + selectedRequest.Name + ".hurl"
@@ -42,17 +46,15 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     case tea.WindowSizeMsg:
         self.items.SetSize(msg.Width, msg.Height)
-        cmds = append(cmds, self.readAllRequestsFromCurrentFolder)
+        return self, self.readAllRequestsFromCurrentFolder
 
     case tea.KeyMsg:
         if msg.String() == "enter" {
-            cmds = append(cmds, self.executeRequest)
+            return self, self.executeRequest
         }
 
         switch {
-            case key.Matches(msg, list.DefaultKeyMap().CursorDown):
-                cmds = append(cmds, self.changeRequest)
-            case key.Matches(msg, list.DefaultKeyMap().CursorUp):
+            case key.Matches(msg, list.DefaultKeyMap().CursorDown), key.Matches(msg, list.DefaultKeyMap().CursorUp):
                 cmds = append(cmds, self.changeRequest)
         }
 
