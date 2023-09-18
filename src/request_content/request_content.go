@@ -22,7 +22,6 @@ func (self Model) Init() tea.Cmd {
 }
 
 func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-    var cmds []tea.Cmd
     var cmd tea.Cmd
 
     switch msg := msg.(type) {
@@ -39,9 +38,8 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     }
 
     self.content, cmd = self.content.Update(msg)
-    cmds = append(cmds, cmd)
 
-    return self, tea.Batch(cmds...)
+    return self, cmd
 }
 
 func (self Model) View() string {

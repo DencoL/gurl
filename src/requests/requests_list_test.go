@@ -2,21 +2,12 @@ package requests
 
 import (
 	"testing"
+    "test"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/fluentassert/verify"
 )
-
-func isMsgOfType[TCommand tea.Msg](cmd tea.Cmd) bool {
-    if cmd == nil {
-        return false
-    }
-
-    _, ok := cmd().(TCommand)
-
-    return ok
-}
 
 func TestUpdate_WindowSizeMsg_SendsAllRequestReadMsg(t *testing.T) {
     model := New(testPath)
@@ -26,7 +17,7 @@ func TestUpdate_WindowSizeMsg_SendsAllRequestReadMsg(t *testing.T) {
         Height: 100,
     })
 
-    verify.True(isMsgOfType[AllRequestRead](cmd)).Assert(t, "AllRequestRead msg was not send after WindowSizeMsg")
+    verify.True(test.IsMsgOfType[AllRequestRead](cmd)).Assert(t, "AllRequestRead msg was not send after WindowSizeMsg")
 }
 
 func TestUpdate_AllRequestsReadMsg_SetsReceivedRequests(t *testing.T) {
@@ -56,7 +47,7 @@ func TestUpdate_AllRequestsReadMsg_SendsChangeRequestMsg(t *testing.T) {
         },
     }))
 
-    verify.True(isMsgOfType[RequestChanged](cmd)).Assert(t, "RequestChanged was not send after all requests are read")
+    verify.True(test.IsMsgOfType[RequestChanged](cmd)).Assert(t, "RequestChanged was not send after all requests are read")
 }
 
 func TestUpdate_UpAndDownKey_SendsRequestChangedMsg(t *testing.T) {
@@ -80,7 +71,7 @@ func TestUpdate_UpAndDownKey_SendsRequestChangedMsg(t *testing.T) {
         }).Assert(t, "Cmd is not of type BatchMsg")
 
         verify.Slice[tea.Cmd](cmds).Any(func(c tea.Cmd) bool {
-            return isMsgOfType[RequestChanged](c)
+            return test.IsMsgOfType[RequestChanged](c)
         }).Assert(t, "RequestChanged msg was not send after moving up/down in the list")
     }
 
@@ -93,5 +84,5 @@ func TestUpdate_EnterKey_SendsExecuteRequestMsg(t *testing.T) {
         Type: tea.KeyEnter,
     }))
 
-    verify.True(isMsgOfType[ExecuteRequest](cmd)).Assert(t, "ExecuteRequest msg was not send after pressing enter")
+    verify.True(test.IsMsgOfType[ExecuteRequest](cmd)).Assert(t, "ExecuteRequest msg was not send after pressing enter")
 }
