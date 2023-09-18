@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
 	"golang.org/x/exp/slices"
 )
 
@@ -37,6 +38,18 @@ func ReadRequestsInfo(folderPath string) []Request {
     filepath.WalkDir(folderPath, func(fullFilePath string, dirEntry fs.DirEntry, err error) error {
         if err != nil {
             return err
+        }
+
+        if fullFilePath == folderPath {
+            return nil
+        }
+
+        if dirEntry.IsDir() {
+            result = append(result, Request{
+                Name: dirEntry.Name(),
+                Method: "",
+                IsFolder: true,
+            })
         }
 
         if filepath.Ext(dirEntry.Name()) == ".hurl" {
