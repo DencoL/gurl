@@ -1,7 +1,6 @@
 package requestcontent
 
 import (
-	"fmt"
 	"gurl/requests"
 	"test"
 	"testing"
@@ -29,7 +28,5 @@ func TestUpdate_RequestRead_ChangesContent(t *testing.T) {
 
     newModel, _ = newModel.Update(RequestRead("dummy content"))
 
-    fmt.Println(newModel.View())
-
-    verify.String(newModel.(Model).View()).Contain("dummy content").Assert(t)
+    verify.String(newModel.(Model).View()).Contain("dummy content").Assert(t, "Request content is not correct")
 }

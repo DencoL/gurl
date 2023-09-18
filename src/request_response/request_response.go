@@ -33,7 +33,7 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         self.content.Height = msg.Height
 
     case requests.ExecuteRequest:
-        cmds = append(cmds, self.executeRequest(string(msg)))
+        return self, self.executeRequest(string(msg))
 
     case RequestExecuted:
         res := string(msg) 
