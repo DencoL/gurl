@@ -91,9 +91,16 @@ func (self *Model) readAllRequestsFromCurrentFolder() tea.Msg {
     return AllRequestRead(ReadRequestsInfo(self.requestsFolderPath))
 }
 
-type RequestChanged string
+type RequestChanged struct {
+    RequestFilePath string
+    IsFolder bool
+}
+
 func (self *Model) changeRequest() tea.Msg {
-    return RequestChanged(self.selectedRequestFullPath())
+    return RequestChanged {
+        RequestFilePath: self.selectedRequestFullPath(),
+        IsFolder: self.selectedRequest().IsFolder,
+    }
 }
 
 type ExecuteRequest string

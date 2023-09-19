@@ -44,15 +44,23 @@ func TestUpdate_AllRequestsReadMsg_SendsChangeRequestMsg(t *testing.T) {
         {
             Name: "Request 1",
             Method: "GET",
+            IsFolder: true,
         },
     }))
 
     verify.True(test.IsMsgOfType[RequestChanged](cmd)).Assert(t, "RequestChanged was not send after all requests are read")
+    verify.String(cmd().(RequestChanged).RequestFilePath).Equal(testPath + "Request 1.hurl").Assert(t, "Incorrect request path send on change request")
+    verify.True(cmd().(RequestChanged).IsFolder).Assert(t, "Incorrect IsFolder send on change request")
 }
 
 func TestUpdate_UpAndDownKey_SendsRequestChangedMsg(t *testing.T) {
     model := New(testPath)
 
+    model.items.SetItems([]list.Item {
+        Request {
+            Name: "Request 1",
+        },
+    })
 
     keys := []tea.KeyType {
         tea.KeyDown,

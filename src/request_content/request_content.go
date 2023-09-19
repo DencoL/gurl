@@ -31,7 +31,11 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         self.content.Height = msg.Height
 
     case requests.RequestChanged:
-        return self, self.readRequestContent(string(msg))
+        if msg.IsFolder {
+            self.content.SetContent("")
+        } else {
+            return self, self.readRequestContent(string(msg.RequestFilePath))
+        }
 
     case RequestRead:
         self.content.SetContent(string(msg))
