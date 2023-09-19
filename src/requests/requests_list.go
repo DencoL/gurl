@@ -29,9 +29,11 @@ func (self *Model) selectedRequestFullPath() string {
         return ""
     }
 
-    selectedRequest := self.items.SelectedItem().(Request)
+    return self.requestsFolderPath + self.selectedRequest().Name + ".hurl"
+}
 
-    return self.requestsFolderPath + selectedRequest.Name + ".hurl"
+func (self *Model) selectedRequest() Request {
+    return self.items.SelectedItem().(Request)
 }
 
 func (self Model) Init() tea.Cmd {
@@ -49,11 +51,13 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         return self, self.readAllRequestsFromCurrentFolder
 
     case tea.KeyMsg:
-        if msg.String() == "enter" {
-            return self, self.executeRequest
-        }
-
         switch {
+            case msg.String() == "enter":
+                if self.selectedRequest().IsFolder {
+                    return self, nil
+                } else {
+                    return self, self.executeRequest
+                }
             case key.Matches(msg, list.DefaultKeyMap().CursorDown), key.Matches(msg, list.DefaultKeyMap().CursorUp):
                 cmds = append(cmds, self.changeRequest)
         }

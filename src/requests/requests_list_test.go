@@ -78,11 +78,33 @@ func TestUpdate_UpAndDownKey_SendsRequestChangedMsg(t *testing.T) {
 }
 
 func TestUpdate_EnterKey_SendsExecuteRequestMsg(t *testing.T) {
-    model := New(testPath)
+    model := New(testPath + "test_1.hurl")
+    model.items.SetItems([]list.Item {
+        Request {
+            Name: "Some request",
+            IsFolder: false,
+        },
+    })
 
     _, cmd := model.Update(tea.KeyMsg(tea.Key {
         Type: tea.KeyEnter,
     }))
 
     verify.True(test.IsMsgOfType[ExecuteRequest](cmd)).Assert(t, "ExecuteRequest msg was not send after pressing enter")
+}
+
+func TestUpdate_EnterKey_IsFolder_DoNothing(t *testing.T) {
+    model := New(testPath)
+    model.items.SetItems([]list.Item {
+        Request {
+            Name: "folder",
+            IsFolder: true,
+        },
+    })
+
+    _, cmd := model.Update(tea.KeyMsg(tea.Key {
+        Type: tea.KeyEnter,
+    }))
+
+    verify.Any[tea.Cmd](cmd).Should(func(got tea.Cmd) bool { return got == nil }).Assert(t, "Enter should do nothing on folder")
 }
