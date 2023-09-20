@@ -65,10 +65,22 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     case AllRequestRead:
         // TODO: this is called on WindowSizeMsg, so maybe check if some items exist and overwrite them or something
         requests := []Request(msg)
-        mappedRequests := make([]list.Item, len(requests))
+        mappedRequests := make([]list.Item, 0)
 
-        for index, request := range requests {
-            mappedRequests[index] = request
+        for _, request := range requests {
+            if !request.IsFolder {
+                continue
+            }
+
+            mappedRequests = append(mappedRequests, request)
+        }
+
+        for _, request := range requests {
+            if request.IsFolder {
+                continue
+            }
+
+            mappedRequests = append(mappedRequests, request)
         }
 
         self.items.SetItems(mappedRequests)

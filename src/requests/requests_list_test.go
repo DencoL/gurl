@@ -116,3 +116,28 @@ func TestUpdate_EnterKey_IsFolder_DoNothing(t *testing.T) {
 
     verify.Any[tea.Cmd](cmd).Should(func(got tea.Cmd) bool { return got == nil }).Assert(t, "Enter should do nothing on folder")
 }
+
+func TestUpdate_IsFolder_FoldersAreFirst(t *testing.T) {
+    model := New(testPath)
+
+    m, _ := model.Update(AllRequestRead([]Request {
+        {
+            Name: "Folder 2",
+            IsFolder: true,
+        },
+        {
+            Name: "Request 1",
+        },
+        {
+            Name: "Folder 1",
+            IsFolder: true,
+        },
+    }))
+
+    newModel := m.(Model)
+
+    verify.Slice(newModel.items.Items()).Should(func(got []list.Item) bool { return len(got) == 3 }).Assert(t)
+    verify.String(newModel.items.Items()[0].(Request).Name).Equal("Folder 2").Assert(t)
+    verify.String(newModel.items.Items()[1].(Request).Name).Equal("Folder 1").Assert(t)
+    verify.String(newModel.items.Items()[2].(Request).Name).Equal("Request 1").Assert(t)
+}

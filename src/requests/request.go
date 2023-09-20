@@ -11,9 +11,17 @@ func (self Request) FilterValue() string {
 }
 
 func (self Request) Title() string {
+    if self.IsFolder {
+        return "/" + self.Name
+    }
+
     return self.Name
 }
 
 func (self Request) Description() string {
+    if self.IsFolder {
+        return "FOLDER"
+    }
+
     return self.Method
 }
