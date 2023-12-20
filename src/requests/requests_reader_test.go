@@ -55,3 +55,9 @@ func TestReadRequestsInfo_ReturnsFolders(t *testing.T) {
     verify.String(result[5].Name).Equal("test_folder").Assert(t)
     verify.True(result[5].IsFolder).Assert(t)
 }
+
+func TestReadRequestsInfo_EmptyHurlFile_NotAdded(t *testing.T) {
+    result := ReadRequestsInfo(testPath)
+
+    verify.Slice[Request](result).Should(func(got []Request) bool { return len(got) == 6 }).Assert(t, "List of read requests has invalid count")
+}

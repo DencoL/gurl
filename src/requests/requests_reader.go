@@ -53,13 +53,15 @@ func ReadRequestsInfo(folderPath string) []Request {
         }
 
         if filepath.Ext(dirEntry.Name()) == ".hurl" {
-            firstLine := readFirstLine(fullFilePath)
-            httpMethod := parseHttpMethod(firstLine)
-            
-            result = append(result, Request{
-                Name: strings.Split(dirEntry.Name(), ".")[0],
-                Method: httpMethod,
-            })
+            firstLine, err := readFirstLine(fullFilePath)
+            if err == nil {
+                httpMethod := parseHttpMethod(firstLine)
+
+                result = append(result, Request{
+                    Name: strings.Split(dirEntry.Name(), ".")[0],
+                    Method: httpMethod,
+                })
+            }
         }
 
         return nil
@@ -68,7 +70,7 @@ func ReadRequestsInfo(folderPath string) []Request {
     return result
 }
 
-func readFirstLine(fullFilePath string) string {
+func readFirstLine(fullFilePath string) (string, error) {
     file, err := os.Open(fullFilePath)
     if err != nil {
         log.Fatal("Error opening file!!!")
@@ -78,11 +80,8 @@ func readFirstLine(fullFilePath string) string {
     bytes := make([]byte, readSize)
 
     actuallyReadSize, err := file.Read(bytes)
-    if err != nil {
-        log.Fatal(err)
-    }
 
-    return string(bytes[:actuallyReadSize])
+    return string(bytes[:actuallyReadSize]), err
 }
 
 func parseHttpMethod(value string) string {
