@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"golang.org/x/exp/slices"
 )
 
 type Model struct {
@@ -67,19 +68,19 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         requests := []Request(msg)
         mappedRequests := make([]list.Item, 0)
 
-        for _, request := range requests {
-            if !request.IsFolder {
-                continue
+        slices.SortFunc(requests, func(f Request, s Request) int {
+            if (f.IsFolder && !s.IsFolder) {
+                return -1
             }
 
-            mappedRequests = append(mappedRequests, request)
-        }
-
-        for _, request := range requests {
-            if request.IsFolder {
-                continue
+            if (!f.IsFolder && s.IsFolder) {
+                return 1
             }
 
+            return 0
+        });
+
+        for _, request := range requests {
             mappedRequests = append(mappedRequests, request)
         }
 

@@ -137,7 +137,7 @@ func TestUpdate_IsFolder_FoldersAreFirst(t *testing.T) {
     newModel := m.(Model)
 
     verify.Slice(newModel.items.Items()).Should(func(got []list.Item) bool { return len(got) == 3 }).Assert(t)
-    verify.String(newModel.items.Items()[0].(Request).Name).Equal("Folder 2").Assert(t)
-    verify.String(newModel.items.Items()[1].(Request).Name).Equal("Folder 1").Assert(t)
+    verify.String(newModel.items.Items()[0].(Request).Name).Equal("Folder 2").Assert(t, "Folder should be before requests")
+    verify.String(newModel.items.Items()[1].(Request).Name).Equal("Folder 1").Assert(t, "Folder should be before requests")
     verify.String(newModel.items.Items()[2].(Request).Name).Equal("Request 1").Assert(t)
 }
