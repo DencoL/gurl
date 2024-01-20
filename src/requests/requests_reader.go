@@ -44,12 +44,18 @@ func ReadRequestsInfo(folderPath string) []Request {
             return nil
         }
 
+        if !isInTopLevelFolder(fullFilePath, folderPath) {
+            return nil
+        }
+
         if dirEntry.IsDir() {
             result = append(result, Request{
                 Name: dirEntry.Name(),
                 Method: "",
                 IsFolder: true,
             })
+
+            return nil
         }
 
         if filepath.Ext(dirEntry.Name()) == ".hurl" {
@@ -92,4 +98,11 @@ func parseHttpMethod(value string) string {
     }
 
     return ""
+}
+
+func isInTopLevelFolder(path string, expectedTopLevelFolderName string) bool {
+    pathParts := strings.Split(path, "/")
+    pathWithoutFile := strings.Join(pathParts[0:(len(pathParts) - 1)], string(os.PathSeparator))
+
+    return pathWithoutFile == expectedTopLevelFolderName || pathWithoutFile + "/" == expectedTopLevelFolderName
 }

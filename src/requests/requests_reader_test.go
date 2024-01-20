@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"gurl/extensions"
 	"testing"
 
 	"github.com/fluentassert/verify"
@@ -19,6 +20,9 @@ func TestReadRequestsInfo_NonEmptyFolder_ReturnsHurlFiles(t *testing.T) {
 
     verify.Slice[Request](result).Should(func(got []Request) bool { return len(got) == 6 }).Assert(t)
 
+    verify.String(result[0].Name).Equal("empty_folder").Assert(t)
+    verify.True(result[0].IsFolder).Assert(t)
+
     verify.String(result[1].Name).Equal("test_1").Assert(t)
     verify.False(result[1].IsFolder).Assert(t)
 
@@ -30,6 +34,9 @@ func TestReadRequestsInfo_NonEmptyFolder_ReturnsHurlFiles(t *testing.T) {
 
     verify.String(result[4].Name).Equal("test_5_connect").Assert(t)
     verify.False(result[4].IsFolder).Assert(t)
+
+    verify.String(result[5].Name).Equal("test_folder").Assert(t)
+    verify.True(result[5].IsFolder).Assert(t)
 }
 
 func TestReadRequestsInfo_HttpMethodIsReadFromFile(t *testing.T) {
@@ -59,5 +66,9 @@ func TestReadRequestsInfo_ReturnsFolders(t *testing.T) {
 func TestReadRequestsInfo_EmptyHurlFile_NotAdded(t *testing.T) {
     result := ReadRequestsInfo(testPath)
 
-    verify.Slice[Request](result).Should(func(got []Request) bool { return len(got) == 6 }).Assert(t, "List of read requests has invalid count")
+    verify.Slice[Request](result).Should(func(got []Request) bool {
+        return !extensions.Contains(result, func(request Request) bool {
+            return request.Name == "test_empty"
+        })
+    }).Assert(t, "List of requests should not contain empty hurl file")
 }
