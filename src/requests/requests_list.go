@@ -1,6 +1,8 @@
 package requests
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -9,13 +11,17 @@ import (
 
 type Model struct {
     items list.Model
-    requestsFolderPath string
+    currentFolder string
 }
 
-func New(requestsFolderPath string) Model {
+func New(folder string) Model {
+    if !strings.HasSuffix(folder, "/") {
+        folder = folder + "/"
+    }
+
     model := Model {
         items: list.New(make([]list.Item, 0), list.NewDefaultDelegate(), 0, 0),
-        requestsFolderPath: requestsFolderPath,
+        currentFolder: folder,
     }
 
     model.items.Title = "Requests"
@@ -30,7 +36,7 @@ func (self *Model) selectedRequestFullPath() string {
         return ""
     }
 
-    return self.requestsFolderPath + self.selectedRequest().Name + ".hurl"
+    return self.currentFolder + self.selectedRequest().Name + ".hurl"
 }
 
 func (self *Model) selectedRequest() Request {
@@ -55,7 +61,8 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         switch {
             case msg.String() == "enter":
                 if self.selectedRequest().IsFolder {
-                    return self, nil
+                    self.currentFolder = self.currentFolder + self.selectedRequest().Name + "/"
+                    return self, self.readAllRequestsFromCurrentFolder
                 } else {
                     return self, self.executeRequest
                 }
@@ -101,7 +108,7 @@ func (self Model) View() string {
 
 type AllRequestRead []Request
 func (self *Model) readAllRequestsFromCurrentFolder() tea.Msg {
-    return AllRequestRead(ReadRequestsInfo(self.requestsFolderPath))
+    return AllRequestRead(ReadRequestsInfo(self.currentFolder))
 }
 
 type RequestChanged struct {

@@ -49,7 +49,7 @@ func TestUpdate_AllRequestsReadMsg_SendsChangeRequestMsg(t *testing.T) {
     }))
 
     verify.True(test.IsMsgOfType[RequestChanged](cmd)).Assert(t, "RequestChanged was not send after all requests are read")
-    verify.String(cmd().(RequestChanged).RequestFilePath).Equal(testPath + "Request 1.hurl").Assert(t, "Incorrect request path send on change request")
+    verify.String(cmd().(RequestChanged).RequestFilePath).Equal(testPath + "/Request 1.hurl").Assert(t, "Incorrect request path send on change request")
     verify.True(cmd().(RequestChanged).IsFolder).Assert(t, "Incorrect IsFolder send on change request")
 }
 
@@ -101,20 +101,26 @@ func TestUpdate_EnterKey_SendsExecuteRequestMsg(t *testing.T) {
     verify.True(test.IsMsgOfType[ExecuteRequest](cmd)).Assert(t, "ExecuteRequest msg was not send after pressing enter")
 }
 
-func TestUpdate_EnterKey_IsFolder_DoNothing(t *testing.T) {
+func TestUpdate_EnterKey_IsFolder_ChangesFolder(t *testing.T) {
     model := New(testPath)
     model.items.SetItems([]list.Item {
         Request {
-            Name: "folder",
+            Name: "test_folder",
             IsFolder: true,
         },
     })
 
-    _, cmd := model.Update(tea.KeyMsg(tea.Key {
+    newModel, cmd := model.Update(tea.KeyMsg(tea.Key {
         Type: tea.KeyEnter,
     }))
 
-    verify.Any[tea.Cmd](cmd).Should(func(got tea.Cmd) bool { return got == nil }).Assert(t, "Enter should do nothing on folder")
+    verify.True(test.IsMsgOfType[AllRequestRead](cmd)).Assert(t, "AllRequestRead msg was not send after hitting enter on folder")
+    msg, _ := cmd().(AllRequestRead)
+
+    verify.Slice(msg).Should(func(got []Request) bool { return len(got) == 2 }).Assert(t)
+    verify.String(msg[0].Name).Equal("sub_1").Assert(t)
+    verify.String(msg[1].Name).Equal("sub_folder").Assert(t)
+    verify.String(newModel.(Model).currentFolder).Equal(testPath + "/test_folder/").Assert(t)
 }
 
 func TestUpdate_IsFolder_FoldersAreFirst(t *testing.T) {
