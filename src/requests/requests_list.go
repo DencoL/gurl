@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -32,15 +33,22 @@ func New(folder string) Model {
 }
 
 func (self *Model) selectedRequestFullPath() string {
-    if len(self.items.Items()) == 0 {
+    selectedRequets, err := self.selectedRequest()
+    if err != nil {
         return ""
     }
 
-    return self.currentFolder + self.selectedRequest().Name + ".hurl"
+    return self.currentFolder + selectedRequets.Name + ".hurl"
 }
 
-func (self *Model) selectedRequest() Request {
-    return self.items.SelectedItem().(Request)
+func (self *Model) selectedRequest() (request Request, err error)  {
+    selectedRequest, isRequest := self.items.SelectedItem().(Request)
+
+    if !isRequest {
+        return Request{}, errors.New("no requests")
+    }
+
+    return selectedRequest, nil
 }
 
 func (self Model) Init() tea.Cmd {
@@ -60,8 +68,13 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     case tea.KeyMsg:
         switch {
             case msg.String() == "enter":
-                if self.selectedRequest().IsFolder {
-                    self.currentFolder = self.currentFolder + self.selectedRequest().Name + "/"
+                selectedRequest, err := self.selectedRequest()
+                if err != nil {
+                    return self, nil
+                }
+
+                if selectedRequest.IsFolder {
+                    self.currentFolder = self.currentFolder + selectedRequest.Name + "/"
                     return self, self.readAllRequestsFromCurrentFolder
                 } else {
                     return self, self.executeRequest
@@ -117,9 +130,15 @@ type RequestChanged struct {
 }
 
 func (self *Model) changeRequest() tea.Msg {
+    selectedRequest, err := self.selectedRequest()
+
+    if err != nil {
+        return nil
+    }
+
     return RequestChanged {
         RequestFilePath: self.selectedRequestFullPath(),
-        IsFolder: self.selectedRequest().IsFolder,
+        IsFolder: selectedRequest.IsFolder,
     }
 }
 
