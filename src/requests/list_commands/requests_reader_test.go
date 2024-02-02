@@ -1,4 +1,4 @@
-package requests
+package listcommands
 
 import (
 	"gurl/extensions"
@@ -8,7 +8,7 @@ import (
 	"github.com/fluentassert/verify"
 )
 
-const testPath = "../../test/test_files"
+const testPath = "../../../test/test_files"
 
 func TestReadRequestsInfo_EmptyFolder_ReturnsEmpty(t *testing.T) {
     result := ReadRequestsInfo(testPath + "/empty_folder")

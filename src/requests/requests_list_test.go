@@ -10,6 +10,8 @@ import (
 	"github.com/fluentassert/verify"
 )
 
+const testPath = "../../test/test_files"
+
 func TestUpdate_WindowSizeMsg_SendsAllRequestReadMsg(t *testing.T) {
     model := New(testPath)
 

@@ -2,8 +2,9 @@ package requests
 
 import (
 	"errors"
+	"gurl/data_models"
+	"gurl/requests/list_commands"
 	"strings"
-    "gurl/data_models"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -122,7 +123,7 @@ func (self Model) View() string {
 
 type AllRequestRead []datamodels.Request
 func (self *Model) readAllRequestsFromCurrentFolder() tea.Msg {
-    return AllRequestRead(ReadRequestsInfo(self.currentFolder))
+    return AllRequestRead(listcommands.ReadRequestsInfo(self.currentFolder))
 }
 
 type RequestChanged struct {

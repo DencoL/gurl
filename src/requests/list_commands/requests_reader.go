@@ -1,4 +1,4 @@
-package requests
+package listcommands
 
 import (
 	"io/fs"
