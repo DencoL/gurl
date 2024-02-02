@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+    "gurl/data_models"
 
 	"golang.org/x/exp/slices"
 )
@@ -23,7 +24,7 @@ func findLongestSupportedHttpMethod() string {
 }
 
 // Currently reads only from the first level, subfolders will be added later
-func ReadRequestsInfo(folderPath string) []Request {
+func ReadRequestsInfo(folderPath string) []datamodels.Request {
     folderItems, err := os.ReadDir(folderPath)
 
     if err != nil {
@@ -31,10 +32,10 @@ func ReadRequestsInfo(folderPath string) []Request {
     }
 
     if len(folderItems) == 0 {
-        return make([]Request, 0)
+        return make([]datamodels.Request, 0)
     }
 
-    var result []Request
+    var result []datamodels.Request
     filepath.WalkDir(folderPath, func(fullFilePath string, dirEntry fs.DirEntry, err error) error {
         if err != nil {
             return err
@@ -49,7 +50,7 @@ func ReadRequestsInfo(folderPath string) []Request {
         }
 
         if dirEntry.IsDir() {
-            result = append(result, Request{
+            result = append(result, datamodels.Request{
                 Name: dirEntry.Name(),
                 Method: "",
                 IsFolder: true,
@@ -63,7 +64,7 @@ func ReadRequestsInfo(folderPath string) []Request {
             if err == nil {
                 httpMethod := parseHttpMethod(firstLine)
 
-                result = append(result, Request{
+                result = append(result, datamodels.Request{
                     Name: strings.Split(dirEntry.Name(), ".")[0],
                     Method: httpMethod,
                 })

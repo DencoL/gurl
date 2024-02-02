@@ -3,6 +3,7 @@ package requests
 import (
 	"gurl/extensions"
 	"testing"
+    "gurl/data_models"
 
 	"github.com/fluentassert/verify"
 )
@@ -12,13 +13,13 @@ const testPath = "../../test/test_files"
 func TestReadRequestsInfo_EmptyFolder_ReturnsEmpty(t *testing.T) {
     result := ReadRequestsInfo(testPath + "/empty_folder")
 
-    verify.Slice[Request](result).Empty().Assert(t)
+    verify.Slice[datamodels.Request](result).Empty().Assert(t)
 }
 
 func TestReadRequestsInfo_NonEmptyFolder_ReturnsHurlFiles(t *testing.T) {
     result := ReadRequestsInfo(testPath)
 
-    verify.Slice[Request](result).Should(func(got []Request) bool { return len(got) == 6 }).Assert(t)
+    verify.Slice[datamodels.Request](result).Should(func(got []datamodels.Request) bool { return len(got) == 6 }).Assert(t)
 
     verify.String(result[0].Name).Equal("empty_folder").Assert(t)
     verify.True(result[0].IsFolder).Assert(t)
@@ -66,8 +67,8 @@ func TestReadRequestsInfo_ReturnsFolders(t *testing.T) {
 func TestReadRequestsInfo_EmptyHurlFile_NotAdded(t *testing.T) {
     result := ReadRequestsInfo(testPath)
 
-    verify.Slice[Request](result).Should(func(got []Request) bool {
-        return !extensions.Contains(result, func(request Request) bool {
+    verify.Slice[datamodels.Request](result).Should(func(got []datamodels.Request) bool {
+        return !extensions.Contains(result, func(request datamodels.Request) bool {
             return request.Name == "test_empty"
         })
     }).Assert(t, "List of requests should not contain empty hurl file")

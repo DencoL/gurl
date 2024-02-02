@@ -1,4 +1,4 @@
-package requests
+package datamodels
 
 type Request struct {
     Name string

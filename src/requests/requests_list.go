@@ -3,6 +3,7 @@ package requests
 import (
 	"errors"
 	"strings"
+    "gurl/data_models"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -41,11 +42,11 @@ func (self *Model) selectedRequestFullPath() string {
     return self.currentFolder + selectedRequets.Name + ".hurl"
 }
 
-func (self *Model) selectedRequest() (request Request, err error)  {
-    selectedRequest, isRequest := self.items.SelectedItem().(Request)
+func (self *Model) selectedRequest() (request datamodels.Request, err error)  {
+    selectedRequest, isRequest := self.items.SelectedItem().(datamodels.Request)
 
     if !isRequest {
-        return Request{}, errors.New("no requests")
+        return datamodels.Request{}, errors.New("no requests")
     }
 
     return selectedRequest, nil
@@ -85,10 +86,10 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     case AllRequestRead:
         // TODO: this is called on WindowSizeMsg, so maybe check if some items exist and overwrite them or something
-        requests := []Request(msg)
+        requests := []datamodels.Request(msg)
         mappedRequests := make([]list.Item, 0)
 
-        slices.SortFunc(requests, func(f Request, s Request) int {
+        slices.SortFunc(requests, func(f datamodels.Request, s datamodels.Request) int {
             if (f.IsFolder && !s.IsFolder) {
                 return -1
             }
@@ -119,7 +120,7 @@ func (self Model) View() string {
     return self.items.View()
 }
 
-type AllRequestRead []Request
+type AllRequestRead []datamodels.Request
 func (self *Model) readAllRequestsFromCurrentFolder() tea.Msg {
     return AllRequestRead(ReadRequestsInfo(self.currentFolder))
 }
