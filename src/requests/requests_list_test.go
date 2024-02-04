@@ -65,15 +65,19 @@ func TestUpdate_UpAndDownKey_SendsRequestChangedMsg(t *testing.T) {
         },
     })
 
-    keys := []tea.KeyType {
-        tea.KeyDown,
-        tea.KeyUp,
+    keys := []tea.KeyMsg {
+        tea.KeyMsg {
+            Type: tea.KeyRunes,
+            Runes: []rune("j"),
+        },
+        tea.KeyMsg {
+            Type: tea.KeyRunes,
+            Runes: []rune("k"),
+        },
     }
 
     for _, key := range keys {
-        _, cmd := model.Update(tea.KeyMsg(tea.Key {
-            Type: key,
-        }))
+        _, cmd := model.Update(key)
 
 
         var cmds tea.BatchMsg
