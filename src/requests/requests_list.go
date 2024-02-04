@@ -90,6 +90,10 @@ func (self *Model) currentFolder() string {
     return self.folders[len(self.folders) - 1]
 }
 
+func (self *Model) isInRootFolder() bool {
+    return len(self.folders) == 1
+}
+
 func (self Model) Init() tea.Cmd {
     return nil
 }
@@ -123,12 +127,11 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
             case key.Matches(msg, self.keys.changeRequest):
                 cmds = append(cmds, self.changeRequest)
             case key.Matches(msg, self.keys.back):
-                foldersLength := len(self.folders)
-                
-                if foldersLength == 1 {
+                if self.isInRootFolder() {
                     return self, nil
                 }
                 
+                foldersLength := len(self.folders)
                 self.folders = slices.Delete(self.folders, foldersLength - 1, foldersLength)
                 
                 return self, self.readAllRequestsFromCurrentFolder
