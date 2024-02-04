@@ -12,9 +12,23 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+type listKeyMap struct {
+	back key.Binding
+}
+
+func newListKeyMap() *listKeyMap {
+	return &listKeyMap{
+		back: key.NewBinding(
+			key.WithKeys("h"),
+			key.WithHelp("h", "Go back"),
+		),
+	}
+}
+
 type Model struct {
     items list.Model
-    currentFolder string
+    folders []string
+    keys *listKeyMap
 }
 
 func New(folder string) Model {
@@ -24,7 +38,14 @@ func New(folder string) Model {
 
     model := Model {
         items: list.New(make([]list.Item, 0), list.NewDefaultDelegate(), 0, 0),
-        currentFolder: folder,
+        folders: []string { folder },
+    }
+
+    model.keys = newListKeyMap()
+    model.items.AdditionalShortHelpKeys = func() []key.Binding {
+        return []key.Binding {
+            model.keys.back,
+        }
     }
 
     model.items.Title = "Requests"
@@ -40,7 +61,7 @@ func (self *Model) selectedRequestFullPath() string {
         return ""
     }
 
-    return self.currentFolder + selectedRequets.Name + ".hurl"
+    return self.currentFolder() + selectedRequets.Name + ".hurl"
 }
 
 func (self *Model) selectedRequest() (request datamodels.Request, err error)  {
@@ -51,6 +72,10 @@ func (self *Model) selectedRequest() (request datamodels.Request, err error)  {
     }
 
     return selectedRequest, nil
+}
+
+func (self *Model) currentFolder() string {
+    return self.folders[len(self.folders) - 1]
 }
 
 func (self Model) Init() tea.Cmd {
@@ -76,13 +101,25 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
                 }
 
                 if selectedRequest.IsFolder {
-                    self.currentFolder = self.currentFolder + selectedRequest.Name + "/"
+                    nextFolder := self.currentFolder() + selectedRequest.Name + "/"
+                    self.folders = append(self.folders, nextFolder)
+
                     return self, self.readAllRequestsFromCurrentFolder
                 } else {
                     return self, self.executeRequest
                 }
             case key.Matches(msg, list.DefaultKeyMap().CursorDown), key.Matches(msg, list.DefaultKeyMap().CursorUp):
                 cmds = append(cmds, self.changeRequest)
+            case key.Matches(msg, self.keys.back):
+                foldersLength := len(self.folders)
+                
+                if foldersLength == 1 {
+                    return self, nil
+                }
+                
+                self.folders = slices.Delete(self.folders, foldersLength - 1, foldersLength)
+                
+                return self, self.readAllRequestsFromCurrentFolder
         }
 
     case AllRequestRead:
@@ -123,7 +160,7 @@ func (self Model) View() string {
 
 type AllRequestRead []datamodels.Request
 func (self *Model) readAllRequestsFromCurrentFolder() tea.Msg {
-    return AllRequestRead(listcommands.ReadRequestsInfo(self.currentFolder))
+    return AllRequestRead(listcommands.ReadRequestsInfo(self.currentFolder()))
 }
 
 type RequestChanged struct {

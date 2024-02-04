@@ -113,7 +113,7 @@ func TestUpdate_EnterKey_IsFolder_ChangesFolder(t *testing.T) {
         },
     })
 
-    newModel, cmd := model.Update(tea.KeyMsg(tea.Key {
+    _, cmd := model.Update(tea.KeyMsg(tea.Key {
         Type: tea.KeyEnter,
     }))
 
@@ -123,7 +123,6 @@ func TestUpdate_EnterKey_IsFolder_ChangesFolder(t *testing.T) {
     verify.Slice(msg).Should(func(got []datamodels.Request) bool { return len(got) == 2 }).Assert(t)
     verify.String(msg[0].Name).Equal("sub_1").Assert(t)
     verify.String(msg[1].Name).Equal("sub_folder").Assert(t)
-    verify.String(newModel.(Model).currentFolder).Equal(testPath + "/test_folder/").Assert(t)
 }
 
 func TestUpdate_IsFolder_FoldersAreFirst(t *testing.T) {
@@ -149,4 +148,64 @@ func TestUpdate_IsFolder_FoldersAreFirst(t *testing.T) {
     verify.String(newModel.items.Items()[0].(datamodels.Request).Name).Equal("Folder 2").Assert(t, "Folder should be before requests")
     verify.String(newModel.items.Items()[1].(datamodels.Request).Name).Equal("Folder 1").Assert(t, "Folder should be before requests")
     verify.String(newModel.items.Items()[2].(datamodels.Request).Name).Equal("Request 1").Assert(t)
+}
+
+func TestGoBack_RememberRootFolderOnInit(t *testing.T) {
+    model := New(testPath)
+
+    verify.Slice(model.folders).Should(func(got []string) bool { return len(got) == 1 }).Assert(t)
+    verify.String(model.folders[0]).Equal(testPath + "/").Assert(t)
+}
+
+func TestGoBack_EnterOnFolder_RememberFolder(t *testing.T) {
+    model := New(testPath)
+    model.items.SetItems([]list.Item {
+        datamodels.Request {
+            Name: "test_folder",
+            IsFolder: true,
+        },
+    })
+
+    newModel, _ := model.Update(tea.KeyMsg(tea.Key {
+        Type: tea.KeyEnter,
+    }))
+
+    verify.Slice(newModel.(Model).folders).Should(func(got []string) bool { return len(got) == 2 }).Assert(t, "Folder on enter was not remembered")
+    verify.String(newModel.(Model).folders[0]).Equal(testPath + "/").Assert(t)
+    verify.String(newModel.(Model).folders[1]).Equal(testPath + "/" + "test_folder/").Assert(t)
+}
+
+func TestGoBack_GoBackKey_GoesUpOneFolderCorrectly(t *testing.T) {
+    model := New(testPath)
+    model.folders = append(model.folders, testPath + "/test_folder")
+    model.folders = append(model.folders, testPath + "/test_folder/" + "sub_folder")
+
+    newModel, cmd := model.Update(tea.KeyMsg {
+        Type: tea.KeyRunes,
+        Runes: []rune("h"),
+    })
+
+    verify.True(test.IsMsgOfType[AllRequestRead](cmd)).Assert(t, "AllRequestRead msg was not send after go back")
+    verify.String(newModel.(Model).folders[0]).Equal(testPath + "/").Assert(t)
+    verify.String(newModel.(Model).folders[1]).Equal(testPath + "/test_folder").Assert(t)
+
+    newModel, cmd = model.Update(tea.KeyMsg {
+        Type: tea.KeyRunes,
+        Runes: []rune("h"),
+    })
+    
+    verify.True(test.IsMsgOfType[AllRequestRead](cmd)).Assert(t, "AllRequestRead msg was not send after go back")
+    verify.String(newModel.(Model).folders[0]).Equal(testPath + "/").Assert(t)
+}
+
+func TestGoBack_GoBackKey_DoesNotAllowToGoOverRootFolder(t *testing.T) {
+    model := New(testPath)
+
+    newModel, cmd := model.Update(tea.KeyMsg {
+        Type: tea.KeyRunes,
+        Runes: []rune("h"),
+    })
+
+    verify.False(test.IsMsgOfType[AllRequestRead](cmd)).Assert(t, "AllRequestRead msg was not send after go back")
+    verify.String(newModel.(Model).folders[0]).Equal(testPath + "/").Assert(t)
 }
