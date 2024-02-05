@@ -13,21 +13,11 @@ import (
 )
 
 type listKeyMap struct {
-	selectRequest key.Binding
-	changeRequest key.Binding
     back key.Binding
 }
 
 func newListKeyMap() *listKeyMap {
 	return &listKeyMap{
-		selectRequest: key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("Enter", "Execute/Open"),
-		),
-		changeRequest: key.NewBinding(
-			key.WithKeys("j", "k"),
-			key.WithHelp("j/k", "Down/Up"),
-		),
 		back: key.NewBinding(
 			key.WithKeys("h"),
 			key.WithHelp("h", "Go back"),
@@ -55,7 +45,6 @@ func New(folder string) Model {
     // TODO: the help menu looks terrible now
     model.items.AdditionalShortHelpKeys = func() []key.Binding {
         return []key.Binding {
-            model.keys.selectRequest,
             model.keys.back,
         }
     }
@@ -110,7 +99,7 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     case tea.KeyMsg:
         switch {
-            case key.Matches(msg, self.keys.selectRequest):
+            case msg.String() == "enter":
                 selectedRequest, err := self.selectedRequest()
                 if err != nil {
                     return self, nil
@@ -124,7 +113,7 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
                 } else {
                     return self, self.executeRequest
                 }
-            case key.Matches(msg, self.keys.changeRequest):
+            case key.Matches(msg, list.DefaultKeyMap().CursorUp), key.Matches(msg, list.DefaultKeyMap().CursorDown):
                 cmds = append(cmds, self.changeRequest)
             case key.Matches(msg, self.keys.back):
                 if self.isInRootFolder() {
