@@ -19,8 +19,8 @@ type listKeyMap struct {
 func newListKeyMap() *listKeyMap {
 	return &listKeyMap{
 		back: key.NewBinding(
-			key.WithKeys("h"),
-			key.WithHelp("h", "Go back"),
+			key.WithKeys("-"),
+			key.WithHelp("-", "Go back"),
 		),
 	}
 }
