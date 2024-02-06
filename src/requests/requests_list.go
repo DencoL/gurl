@@ -14,6 +14,7 @@ import (
 
 type listKeyMap struct {
     back key.Binding
+    edit key.Binding
 }
 
 func newListKeyMap() *listKeyMap {
@@ -21,6 +22,10 @@ func newListKeyMap() *listKeyMap {
 		back: key.NewBinding(
 			key.WithKeys("-"),
 			key.WithHelp("-", "Go back"),
+		),
+		edit: key.NewBinding(
+			key.WithKeys("e"),
+			key.WithHelp("e", "Edit"),
 		),
 	}
 }
@@ -46,12 +51,14 @@ func New(folder string) Model {
     model.items.AdditionalShortHelpKeys = func() []key.Binding {
         return []key.Binding {
             model.keys.back,
+            model.keys.edit,
         }
     }
 
     model.items.Title = "Requests"
     model.items.SetFilteringEnabled(false)
     model.items.SetShowStatusBar(false)
+    model.items.SetShowHelp(false)
 
     return model
 }
@@ -124,6 +131,11 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
                 self.folders = slices.Delete(self.folders, foldersLength - 1, foldersLength)
                 
                 return self, self.readAllRequestsFromCurrentFolder
+            case key.Matches(msg, self.keys.edit):
+                if selectedRequest, _ := self.selectedRequest(); selectedRequest.IsFolder {
+                    return self, nil
+                }
+                return self, tea.Batch(tea.HideCursor, listcommands.OpenEditor(self.selectedRequestFullPath()))
         }
 
     case AllRequestRead:
