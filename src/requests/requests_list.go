@@ -64,22 +64,19 @@ func New(folder string) Model {
 }
 
 func (self *Model) selectedRequestFullPath() string {
-    selectedRequets, err := self.selectedRequest()
-    if err != nil {
-        return ""
+    if selectedRequets, err := self.selectedRequest(); err == nil {
+        return self.currentFolder() + selectedRequets.Name + ".hurl"
     }
 
-    return self.currentFolder() + selectedRequets.Name + ".hurl"
+    return ""
 }
 
 func (self *Model) selectedRequest() (request datamodels.Request, err error)  {
-    selectedRequest, isRequest := self.items.SelectedItem().(datamodels.Request)
-
-    if !isRequest {
-        return datamodels.Request{}, errors.New("no requests")
+    if selectedRequest, isRequest := self.items.SelectedItem().(datamodels.Request); isRequest {
+        return selectedRequest, nil
     }
 
-    return selectedRequest, nil
+    return datamodels.Request{}, errors.New("no requests")
 }
 
 func (self *Model) currentFolder() string {
