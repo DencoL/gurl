@@ -186,7 +186,7 @@ func TestGoBack_GoBackKey_GoesUpOneFolderCorrectly(t *testing.T) {
 
     newModel, cmd := model.Update(tea.KeyMsg {
         Type: tea.KeyRunes,
-        Runes: []rune("h"),
+        Runes: []rune("-"),
     })
 
     verify.True(test.IsMsgOfType[AllRequestRead](cmd)).Assert(t, "AllRequestRead msg was not send after go back")
