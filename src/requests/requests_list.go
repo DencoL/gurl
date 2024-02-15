@@ -106,10 +106,7 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
             case key.Matches(msg, self.keys.back):
                 return self, handleGoBack(&self)
             case key.Matches(msg, self.keys.edit):
-                if selectedRequest, _ := self.selectedRequest(); selectedRequest.IsFolder {
-                    return self, nil
-                }
-                return self, tea.Batch(tea.HideCursor, listcommands.OpenEditor(self.selectedRequestFullPath()))
+                return self, handleEdit(&self)
         }
 
     case AllRequestRead:
