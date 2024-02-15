@@ -104,19 +104,7 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     case tea.KeyMsg:
         switch {
             case msg.String() == "enter":
-                selectedRequest, err := self.selectedRequest()
-                if err != nil {
-                    return self, nil
-                }
-
-                if selectedRequest.IsFolder {
-                    nextFolder := self.currentFolder() + selectedRequest.Name + "/"
-                    self.folders = append(self.folders, nextFolder)
-
-                    return self, self.readAllRequestsFromCurrentFolder
-                } else {
-                    return self, self.executeRequest
-                }
+                return self, handleEnter(&self)
             case key.Matches(msg, list.DefaultKeyMap().CursorUp), key.Matches(msg, list.DefaultKeyMap().CursorDown):
                 cmds = append(cmds, self.changeRequest)
             case key.Matches(msg, self.keys.back):
@@ -192,9 +180,4 @@ func (self *Model) changeRequest() tea.Msg {
         RequestFilePath: self.selectedRequestFullPath(),
         IsFolder: selectedRequest.IsFolder,
     }
-}
-
-type ExecuteRequest string
-func (self *Model) executeRequest() tea.Msg {
-    return ExecuteRequest(self.selectedRequestFullPath())
 }
