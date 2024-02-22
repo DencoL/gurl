@@ -3,6 +3,7 @@ package requests
 import (
 	"errors"
 	"gurl/data_models"
+	"gurl/requests/help"
 	"gurl/requests/list_commands"
 	"strings"
 
@@ -12,28 +13,10 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-type listKeyMap struct {
-    back key.Binding
-    edit key.Binding
-}
-
-func newListKeyMap() *listKeyMap {
-	return &listKeyMap{
-		back: key.NewBinding(
-			key.WithKeys("-"),
-			key.WithHelp("-", "Go back"),
-		),
-		edit: key.NewBinding(
-			key.WithKeys("e"),
-			key.WithHelp("e", "Edit"),
-		),
-	}
-}
-
 type Model struct {
     items list.Model
     folders []string
-    keys *listKeyMap
+    help help.Model
 }
 
 func New(folder string) Model {
@@ -44,15 +27,7 @@ func New(folder string) Model {
     model := Model {
         items: list.New(make([]list.Item, 0), list.NewDefaultDelegate(), 0, 0),
         folders: []string { folder },
-    }
-
-    model.keys = newListKeyMap()
-    // TODO: the help menu looks terrible now
-    model.items.AdditionalShortHelpKeys = func() []key.Binding {
-        return []key.Binding {
-            model.keys.back,
-            model.keys.edit,
-        }
+        help: help.New(),
     }
 
     model.items.Title = "Requests"
@@ -101,11 +76,11 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         switch {
             case msg.String() == "enter":
                 return self, handleEnter(&self)
-            case key.Matches(msg, list.DefaultKeyMap().CursorUp), key.Matches(msg, list.DefaultKeyMap().CursorDown):
+            case key.Matches(msg, self.help.Keys.Up), key.Matches(msg, self.help.Keys.Down):
                 cmds = append(cmds, self.changeRequest)
-            case key.Matches(msg, self.keys.back):
+            case key.Matches(msg, self.help.Keys.Back):
                 return self, handleGoBack(&self)
-            case key.Matches(msg, self.keys.edit):
+            case key.Matches(msg, self.help.Keys.Edit):
                 return self, handleEdit(&self)
         }
 
