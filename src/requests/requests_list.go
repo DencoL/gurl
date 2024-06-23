@@ -7,6 +7,7 @@ import (
 	"gurl/requests/list_commands"
 	"strings"
 
+	"github.com/76creates/stickers"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -17,6 +18,7 @@ type Model struct {
     items list.Model
     folders []string
     help help.Model
+    flexbox stickers.FlexBox
 }
 
 func New(folder string) Model {
@@ -28,6 +30,7 @@ func New(folder string) Model {
         items: list.New(make([]list.Item, 0), list.NewDefaultDelegate(), 0, 0),
         folders: []string { folder },
         help: help.New(),
+        flexbox: *stickers.NewFlexBox(0, 0),
     }
 
     model.items.Title = "Requests"
@@ -70,6 +73,10 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     case tea.WindowSizeMsg:
         self.items.SetSize(msg.Width, msg.Height)
+
+        self.flexbox.SetWidth(msg.Width)
+        self.flexbox.SetHeight(msg.Height)
+
         return self, self.readAllRequestsFromCurrentFolder
 
     case tea.KeyMsg:
@@ -117,7 +124,20 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (self Model) View() string {
-    return self.items.View()
+    self.flexbox.AddRows([]*stickers.FlexBoxRow {
+        self.rowWithContent(self.items.View(), 9),
+        self.rowWithContent(self.help.View(), 1),
+    })
+
+    return self.flexbox.Render()
+}
+
+func (self *Model) rowWithContent(content string, ratioY int) *stickers.FlexBoxRow {
+    return self.flexbox.
+        NewRow().
+        AddCells([]*stickers.FlexBoxCell {
+            stickers.NewFlexBoxCell(1, ratioY).SetContent(content),
+        })
 }
 
 type AllRequestRead []datamodels.Request

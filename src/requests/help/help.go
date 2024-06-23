@@ -4,7 +4,6 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type keyMap struct {
@@ -32,15 +31,11 @@ func newListKeyMap() *keyMap {
 		),
 		Back: key.NewBinding(
 			key.WithKeys("-"),
-			key.WithHelp("-", "Go back"),
+			key.WithHelp("-", "Go up folder"),
 		),
 		Edit: key.NewBinding(
 			key.WithKeys("e"),
 			key.WithHelp("e", "Edit"),
-		),
-		Help: key.NewBinding(
-			key.WithKeys("?"),
-			key.WithHelp("?", "Help"),
 		),
 	}
 }
@@ -65,9 +60,8 @@ type Model struct {
 
 func New() Model {
     h := help.New()
-    h.Styles.ShortDesc.Padding(0)
-    h.Styles.ShortDesc.AlignVertical(lipgloss.Left)
-    h.Styles.ShortDesc.AlignHorizontal(lipgloss.Left)
+    h.ShowAll = true
+
     model := Model{
         help: h,
     }

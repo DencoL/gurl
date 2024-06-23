@@ -8,6 +8,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.7.1
 	github.com/fluentassert/verify v1.0.0
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
+    github.com/76creates/stickers v1.3.0
 )
 
 require (
