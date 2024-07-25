@@ -5,12 +5,12 @@ import (
 )
 
 func runHurl(hurlFilePath string) string {
-    hurl := exec.Command("hurl", hurlFilePath)
-    stdout, err := hurl.Output()
+	hurl := exec.Command("hurl", "--insecure", "--verbose", hurlFilePath)
+	stdout, err := hurl.Output()
 
-    if err != nil {
-        return err.Error()
-    }
+	if err != nil {
+		return err.Error()
+	}
 
-    return string(stdout)
+	return string(stdout)
 }

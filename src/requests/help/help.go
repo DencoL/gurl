@@ -7,12 +7,12 @@ import (
 )
 
 type keyMap struct {
-    Up key.Binding
-    Down key.Binding
-    Confirm key.Binding
-    Back key.Binding
-    Edit key.Binding
-    Help key.Binding
+	Up      key.Binding
+	Down    key.Binding
+	Confirm key.Binding
+	Back    key.Binding
+	Edit    key.Binding
+	Help    key.Binding
 }
 
 func newListKeyMap() *keyMap {
@@ -41,34 +41,34 @@ func newListKeyMap() *keyMap {
 }
 
 func (k keyMap) ShortHelp() []key.Binding {
-	return []key.Binding {
+	return []key.Binding{
 		k.Up, k.Down, k.Confirm, k.Edit,
-    }
+	}
 }
 
 func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-        {k.Up, k.Down, k.Confirm, k.Edit},
-        {k.Back, k.Help},
+		{k.Up, k.Down, k.Confirm, k.Edit},
+		{k.Back, k.Help},
 	}
 }
 
 type Model struct {
-    help help.Model
-    Keys *keyMap
+	help help.Model
+	Keys *keyMap
 }
 
 func New() Model {
-    h := help.New()
-    h.ShowAll = true
+	h := help.New()
+	h.ShowAll = true
 
-    model := Model{
-        help: h,
-    }
+	model := Model{
+		help: h,
+	}
 
-    model.Keys = newListKeyMap()
+	model.Keys = newListKeyMap()
 
-    return model
+	return model
 }
 
 func (self Model) Init() tea.Cmd {

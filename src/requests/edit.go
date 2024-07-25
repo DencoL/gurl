@@ -7,8 +7,8 @@ import (
 )
 
 func handleEdit(model *Model) tea.Cmd {
-    if selectedRequest, _ := model.selectedRequest(); selectedRequest.IsFolder {
-        return nil
-    }
-    return tea.Batch(tea.HideCursor, listcommands.OpenEditor(model.selectedRequestFullPath()))
+	if selectedRequest, _ := model.selectedRequest(); selectedRequest.IsFolder {
+		return nil
+	}
+	return tea.Batch(tea.HideCursor, listcommands.OpenEditor(model.selectedRequestFullPath()))
 }

@@ -6,17 +6,16 @@ import (
 )
 
 func handleGoBack(model *Model) tea.Cmd {
-    if model.isInRootFolder() {
-        return nil
-    }
+	if model.isInRootFolder() {
+		return nil
+	}
 
-    foldersLength := len(model.folders)
-    model.folders = slices.Delete(model.folders, foldersLength - 1, foldersLength)
+	foldersLength := len(model.folders)
+	model.folders = slices.Delete(model.folders, foldersLength-1, foldersLength)
 
-    return model.readAllRequestsFromCurrentFolder
+	return model.readAllRequestsFromCurrentFolder
 }
 
 func (self *Model) isInRootFolder() bool {
-    return len(self.folders) == 1
+	return len(self.folders) == 1
 }
-
