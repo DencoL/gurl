@@ -3,8 +3,11 @@ package requestresponse
 import (
 	"bytes"
 	"encoding/json"
+	"golang.design/x/clipboard"
 	"gurl/requests"
+	"gurl/requests/help"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -43,6 +46,12 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else {
 			self.content.SetContent(toPrettyJson(res))
 		}
+
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, help.Keys().YankResponse):
+			self.copyResponseIntoClipboard()
+		}
 	}
 
 	self.content, cmd = self.content.Update(msg)
@@ -59,6 +68,14 @@ func toPrettyJson(response string) string {
 	} else {
 		return response
 	}
+}
+
+func (self Model) copyResponseIntoClipboard() {
+	clipboardInitErr := clipboard.Init()
+	if clipboardInitErr != nil {
+		panic(clipboardInitErr)
+	}
+	clipboard.Write(clipboard.FmtText, []byte(self.View()))
 }
 
 func (self Model) View() string {

@@ -7,12 +7,13 @@ import (
 )
 
 type keyMap struct {
-	Up      key.Binding
-	Down    key.Binding
-	Confirm key.Binding
-	Back    key.Binding
-	Edit    key.Binding
-	Help    key.Binding
+	Up           key.Binding
+	Down         key.Binding
+	Confirm      key.Binding
+	Back         key.Binding
+	Edit         key.Binding
+	Help         key.Binding
+	YankResponse key.Binding
 }
 
 func newListKeyMap() *keyMap {
@@ -37,6 +38,10 @@ func newListKeyMap() *keyMap {
 			key.WithKeys("e"),
 			key.WithHelp("e", "Edit"),
 		),
+		YankResponse: key.NewBinding(
+			key.WithKeys("y"),
+			key.WithHelp("y", "Yank response"),
+		),
 	}
 }
 
@@ -51,6 +56,10 @@ func (k keyMap) FullHelp() [][]key.Binding {
 		{k.Up, k.Down, k.Confirm, k.Edit},
 		{k.Back, k.Help},
 	}
+}
+
+func Keys() *keyMap {
+	return newListKeyMap()
 }
 
 type Model struct {
