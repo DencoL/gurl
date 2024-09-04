@@ -1,6 +1,8 @@
 package requestresponse
 
 import (
+	"bytes"
+	"encoding/json"
 	"gurl/requests"
 
 	"github.com/charmbracelet/bubbles/viewport"
@@ -38,15 +40,25 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		res := string(msg)
 		if res == "" {
 			res = "<EMPTY RESPONSE>"
+		} else {
+			self.content.SetContent(toPrettyJson(res))
 		}
-
-		self.content.SetContent(res)
 	}
 
 	self.content, cmd = self.content.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return self, tea.Batch(cmds...)
+}
+
+func toPrettyJson(response string) string {
+	var prettyJSON bytes.Buffer
+	toJsonError := json.Indent(&prettyJSON, []byte(response), "", "  ")
+	if toJsonError == nil {
+		return string(prettyJSON.Bytes())
+	} else {
+		return response
+	}
 }
 
 func (self Model) View() string {
