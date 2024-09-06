@@ -54,7 +54,7 @@ func (k keyMap) ShortHelp() []key.Binding {
 func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Up, k.Down, k.Confirm, k.Edit},
-		{k.Back, k.Help},
+		{k.Back, k.Help, k.YankResponse},
 	}
 }
 
