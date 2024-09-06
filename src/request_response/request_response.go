@@ -3,9 +3,10 @@ package requestresponse
 import (
 	"bytes"
 	"encoding/json"
-	"golang.design/x/clipboard"
 	"gurl/requests"
 	"gurl/requests/help"
+
+	"golang.design/x/clipboard"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -42,7 +43,7 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case RequestExecuted:
 		res := string(msg)
 		if res == "" {
-			res = "<EMPTY RESPONSE>"
+			self.content.SetContent("<EMPTY RESPONSE>")
 		} else {
 			self.content.SetContent(toPrettyJson(res))
 		}
