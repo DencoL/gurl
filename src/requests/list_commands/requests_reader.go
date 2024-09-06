@@ -60,15 +60,15 @@ func ReadRequestsInfo(folderPath string) []datamodels.Request {
 		}
 
 		if filepath.Ext(dirEntry.Name()) == ".hurl" {
-			firstLine, err := readFirstLine(fullFilePath)
-			if err == nil {
-				httpMethod := parseHttpMethod(firstLine)
+			firstLine, _ := readFirstLine(fullFilePath)
+			// if err == nil {
+			httpMethod := parseHttpMethod(firstLine)
 
-				result = append(result, datamodels.Request{
-					Name:   strings.Split(dirEntry.Name(), ".")[0],
-					Method: httpMethod,
-				})
-			}
+			result = append(result, datamodels.Request{
+				Name:   strings.Split(dirEntry.Name(), ".")[0],
+				Method: httpMethod,
+			})
+			// }
 		}
 
 		return nil

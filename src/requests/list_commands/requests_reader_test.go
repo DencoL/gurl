@@ -19,7 +19,7 @@ func TestReadRequestsInfo_EmptyFolder_ReturnsEmpty(t *testing.T) {
 func TestReadRequestsInfo_NonEmptyFolder_ReturnsHurlFiles(t *testing.T) {
 	result := ReadRequestsInfo(testPath)
 
-	verify.Slice[datamodels.Request](result).Should(func(got []datamodels.Request) bool { return len(got) == 6 }).Assert(t)
+	verify.Slice[datamodels.Request](result).Should(func(got []datamodels.Request) bool { return len(got) == 7 }).Assert(t)
 
 	verify.String(result[0].Name).Equal("empty_folder").Assert(t)
 	verify.True(result[0].IsFolder).Assert(t)
@@ -36,8 +36,11 @@ func TestReadRequestsInfo_NonEmptyFolder_ReturnsHurlFiles(t *testing.T) {
 	verify.String(result[4].Name).Equal("test_5_connect").Assert(t)
 	verify.False(result[4].IsFolder).Assert(t)
 
-	verify.String(result[5].Name).Equal("test_folder").Assert(t)
-	verify.True(result[5].IsFolder).Assert(t)
+	verify.String(result[5].Name).Equal("test_empty").Assert(t)
+	verify.False(result[5].IsFolder).Assert(t)
+
+	verify.String(result[6].Name).Equal("test_folder").Assert(t)
+	verify.True(result[6].IsFolder).Assert(t)
 }
 
 func TestReadRequestsInfo_HttpMethodIsReadFromFile(t *testing.T) {
@@ -60,16 +63,16 @@ func TestReadRequestsInfo_ReturnsFolders(t *testing.T) {
 	verify.String(result[0].Name).Equal("empty_folder").Assert(t)
 	verify.True(result[0].IsFolder).Assert(t)
 
-	verify.String(result[5].Name).Equal("test_folder").Assert(t)
-	verify.True(result[5].IsFolder).Assert(t)
+	verify.String(result[6].Name).Equal("test_folder").Assert(t)
+	verify.True(result[6].IsFolder).Assert(t)
 }
 
-func TestReadRequestsInfo_EmptyHurlFile_NotAdded(t *testing.T) {
+func TestReadRequestsInfo_EmptyHurlFile_Added(t *testing.T) {
 	result := ReadRequestsInfo(testPath)
 
 	verify.Slice[datamodels.Request](result).Should(func(got []datamodels.Request) bool {
-		return !extensions.Contains(result, func(request datamodels.Request) bool {
+		return extensions.Contains(result, func(request datamodels.Request) bool {
 			return request.Name == "test_empty"
 		})
-	}).Assert(t, "List of requests should not contain empty hurl file")
+	}).Assert(t, "List of requests should contain empty hurl file")
 }
