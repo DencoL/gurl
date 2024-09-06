@@ -51,9 +51,16 @@ func TestUpdate_AllRequestsReadMsg_SendsChangeRequestMsg(t *testing.T) {
 		},
 	}))
 
-	verify.True(test.IsMsgOfType[RequestChanged](cmd)).Assert(t, "RequestChanged was not send after all requests are read")
-	verify.String(cmd().(RequestChanged).RequestFilePath).Equal(testPath+"/Request 1.hurl").Assert(t, "Incorrect request path send on change request")
-	verify.True(cmd().(RequestChanged).IsFolder).Assert(t, "Incorrect IsFolder send on change request")
+	if cmd == nil {
+		t.Fatalf("BatchMsg should not be nil")
+	}
+
+	cmds := cmd().(tea.BatchMsg)
+	changeRequestCmd := cmds[0]().(RequestChanged)
+
+	verify.Slice(cmds).Any(func(c tea.Cmd) bool { return test.IsMsgOfType[RequestChanged](c) })
+	verify.String(changeRequestCmd.RequestFilePath).Equal(testPath+"/Request 1.hurl").Assert(t, "Incorrect request path send on change request")
+	verify.True(changeRequestCmd.IsFolder).Assert(t, "Incorrect IsFolder send on change request")
 }
 
 func TestUpdate_UpAndDownKey_SendsRequestChangedMsg(t *testing.T) {
