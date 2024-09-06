@@ -114,7 +114,7 @@ func (self Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		self.items.SetItems(mappedRequests)
 
-		return self, self.changeRequest
+		cmds = append(cmds, self.changeRequest)
 	}
 
 	self.items, cmd = self.items.Update(msg)
