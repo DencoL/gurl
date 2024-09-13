@@ -6,6 +6,10 @@ name: Go
 on:
   push:
 
+defaults:
+  run:
+    working-directory: ./src
+    
 jobs:
 
   build:
