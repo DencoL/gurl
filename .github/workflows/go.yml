@@ -28,6 +28,9 @@ jobs:
     - name: Install dependencies
       run: go get .
 
+    - name: Tidy
+      run: go mod tidy
+
     - name: Build
       run: go build -v ./...
 
